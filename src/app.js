@@ -12,7 +12,11 @@ const morganOption = (NODE_ENV === 'production')
     : 'common';
 
 app.use(morgan(morganOption))
-app.use(cors())
+app.use(
+    cors({
+        origin: ClIENT_ORIGIN
+    }
+))
 app.use(helmet())
 
 app.get('/api/', (req,res) => {
