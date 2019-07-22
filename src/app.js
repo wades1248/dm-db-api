@@ -4,6 +4,7 @@ const morgan = require('morgan')
 const cors = require('cors')
 const helmet = require('helmet')
 const {NODE_ENV} = require('./config')
+const {CLIENT_ORIGIN} = require('./config');
 
 const app = express()
 
@@ -13,9 +14,7 @@ const morganOption = (NODE_ENV === 'production')
 
 app.use(morgan(morganOption))
 app.use(
-    cors({
-        origin: ClIENT_ORIGIN
-    }
+    cors(
 ))
 app.use(helmet())
 
