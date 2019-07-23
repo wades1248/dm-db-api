@@ -6,13 +6,13 @@ const creaturesRouter = express.Router()
 const serializeCreature = creature => ({
     id: creature.id, 
     name: xss(creature.name), 
-    AC: creature.ac,
-    XP: creature.xp,
-    CR: creature.cr,
-    DexMod: creature.dexmod,
+    ac: creature.ac,
+    xp: creature.xp,
+    cr: creature.cr,
+    dexmod: creature.dexmod,
     source: xss(creature.source),
     artic: creature.artic, 
-    coastal: creature.costal,
+    coastal: creature.coastal,
     desert: creature.desert, 
     forest: creature.forest, 
     grasslands: creature.grasslands, 
@@ -20,7 +20,7 @@ const serializeCreature = creature => ({
     mountain: creature.mountain, 
     swamp: creature.swamp, 
     underdark: creature.underdark, 
-    underWater: creature.underWater,
+    underwater: creature.underwater,
     urban: creature.urban
 
 })

@@ -1,8 +1,9 @@
 const app = require('../src/app')
 const knex = require('knex')
 const {makePlayersArray, makeMaliciousPlayer} = require('./players.fixtures')
+const makeCreaturesArray = require('./creatures.fixtures')
 
-describe(`players endpoints`, function(){
+describe(`creatures & players endpoints`, function(){
     let db 
 
     before(`make knex instance`, () => {
@@ -14,14 +15,31 @@ describe(`players endpoints`, function(){
     })
     after('disconnect from the db', () => db.destroy())
     before('clean the table', () => db('players').truncate())
+    before('clean the table', () => db('creatures').truncate())
     afterEach('cleanup', () => db('players').truncate())
+    afterEach('cleanup', () => db('creatures').truncate())
 
     describe(`GET /creatures`, () => {
         context(`given no players`, () => {
             it(`responds with 200 and an empty list`, () => {
                 return supertest(app)
                     .get('/api/creatures')
+                    .set(`Authorization`, `Bearer ${process.env.API_TOKEN}`)
                     .expect(200, [])
+            })
+        })
+        context(`given that there are creatures in the db`, () => {
+            const testCreatures= makeCreaturesArray()
+            beforeEach(`instsert players`, () => {
+                return db
+                    .into('creatures')
+                    .insert(testCreatures)
+            })
+            it(`responds 200 with all players`, () => {
+                return supertest(app)
+                    .get('/api/creatures')
+                    .set(`Authorization`, `Bearer ${process.env.API_TOKEN}`)
+                    .expect(200, testCreatures)
             })
         })
     })
@@ -31,6 +49,7 @@ describe(`players endpoints`, function(){
             it(`responds with 200 and an empty list`, () => {
                 return supertest(app)
                     .get('/api/players')
+                    .set(`Authorization`, `Bearer ${process.env.API_TOKEN}`)
                     .expect(200, [])
             })
         })
@@ -44,6 +63,7 @@ describe(`players endpoints`, function(){
             it(`responds 200 with all players`, () => {
                 return supertest(app)
                     .get('/api/players')
+                    .set(`Authorization`, `Bearer ${process.env.API_TOKEN}`)
                     .expect(200, testPlayers)
             })
         })
@@ -58,6 +78,7 @@ describe(`players endpoints`, function(){
             it(`removes XSS attack content`, () => {
                 return supertest(app)
                     .get('/api/players')
+                    .set(`Authorization`, `Bearer ${process.env.API_TOKEN}`)
                     .expect(200)
                     .expect(res => {
                         expect(res.body[0].name).to.eql(expectedPlayer.name)
@@ -72,6 +93,7 @@ describe(`players endpoints`, function(){
                 const testId = 9990303
                 return supertest(app)
                     .get(`/api/players/${testId}`)
+                    .set(`Authorization`, `Bearer ${process.env.API_TOKEN}`)
                     .expect(404)
             })
         })
@@ -87,6 +109,7 @@ describe(`players endpoints`, function(){
                 const expectedPlayer = testPlayers[testId-1]
                 return supertest(app)
                     .get(`/api/players/${testId}`)
+                    .set(`Authorization`, `Bearer ${process.env.API_TOKEN}`)
                     .expect(200, expectedPlayer)
             })
         })
@@ -102,6 +125,7 @@ describe(`players endpoints`, function(){
             }
             return supertest(app)
                 .post('/api/players/')
+                .set(`Authorization`, `Bearer ${process.env.API_TOKEN}`)
                 .send(newPlayer)
                 .expect(201)
                 .expect( res => {
@@ -115,6 +139,7 @@ describe(`players endpoints`, function(){
                 .then(postRes => 
                     supertest(app)
                         .get(`/api/players/${postRes.body.id}`)
+                        .set(`Authorization`, `Bearer ${process.env.API_TOKEN}`)
                         .expect(postRes.body)
                     )
         })
@@ -132,6 +157,7 @@ describe(`players endpoints`, function(){
 
                 return supertest(app)
                     .post('/api/players/')
+                    .set(`Authorization`, `Bearer ${process.env.API_TOKEN}`)
                     .send(newPlayer)
                     .expect(400)
             })
@@ -143,6 +169,7 @@ describe(`players endpoints`, function(){
                 const playerId = 4444
                 return supertest(app)
                     .delete(`/ap/players/${playerId}`)
+                    .set(`Authorization`, `Bearer ${process.env.API_TOKEN}`)
                     .expect(404)
             })
         })
@@ -159,10 +186,12 @@ describe(`players endpoints`, function(){
 
                 return supertest(app)
                     .delete(`/api/players/${idToRemove}`)
+                    .set(`Authorization`, `Bearer ${process.env.API_TOKEN}`)
                     .expect(204)
                     .then(res =>
                         supertest(app)
                         .get(`/api/players/`)
+                        .set(`Authorization`, `Bearer ${process.env.API_TOKEN}`)
                         .expect(expectedPlayers)
                         )
             })
@@ -174,6 +203,7 @@ describe(`players endpoints`, function(){
                 const playerId = 4444
                 return supertest(app)
                     .patch(`/api/players/${playerId}`)
+                    .set(`Authorization`, `Bearer ${process.env.API_TOKEN}`)
                     .expect(404)
 
             })
@@ -200,6 +230,7 @@ describe(`players endpoints`, function(){
                 }
                 return supertest(app)
                     .patch(`/api/players/${playerId}`)
+                    .set(`Authorization`, `Bearer ${process.env.API_TOKEN}`)
                     .send({
                         ...updatePlayer
                     })
@@ -207,6 +238,7 @@ describe(`players endpoints`, function(){
                     .then(res =>
                             supertest(app)
                                 .get(`/api/players/${playerId}`)
+                                .set(`Authorization`, `Bearer ${process.env.API_TOKEN}`)
                                 .expect(expectedPlayer)
                         )
             })
@@ -214,6 +246,7 @@ describe(`players endpoints`, function(){
                 const playerID = 2
                 return supertest(app)
                     .patch(`/api/players/${playerID}`)
+                    .set(`Authorization`, `Bearer ${process.env.API_TOKEN}`)
                     .send({fakeField: 'nope'})
                     .expect(400)
             })
@@ -228,6 +261,7 @@ describe(`players endpoints`, function(){
                 }
                 return supertest(app)
                     .patch(`/api/players/${playerID}`)
+                    .set(`Authorization`, `Bearer ${process.env.API_TOKEN}`)
                     .send({
                         ...updatePlayer,
                         fieldToIgnore: 'should not be there'
@@ -236,6 +270,7 @@ describe(`players endpoints`, function(){
                     .then(res => 
                         supertest(app)
                             .get(`/api/players/${playerID}`)
+                            .set(`Authorization`, `Bearer ${process.env.API_TOKEN}`)
                             .expect(expectedPlayer)
                         )
             })
