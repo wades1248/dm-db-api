@@ -4,7 +4,7 @@ This is an API for use with DM DB, an app that generates random encouters and tr
 
 ## Technologies
 
-This API was built using node.js. The datebase was built with postgres.sql. Migrations are handled with postgrator. 
+This API was built using Node.js and Express. The database was built with postgres.sql. Migrations are handled with postgrator. 
 
 ## CORS
 
